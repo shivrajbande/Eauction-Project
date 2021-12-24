@@ -382,6 +382,6 @@ else{
 
  res.render("winner",{records:data});
 })
-// app.listen(3000,()=>{
-//     console.log("server is listening");
-// });
+app.listen(80,()=>{
+    console.log("server is listening");
+});
