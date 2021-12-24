@@ -382,6 +382,6 @@ else{
 
  res.render("winner",{records:data});
 })
-app.listen(80,()=>{
+app.listen(process.env.port,()=>{
     console.log("server is listening");
 });
