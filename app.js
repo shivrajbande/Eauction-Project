@@ -9,8 +9,8 @@ const MongoDBSession = require('connect-mongodb-session')(session);
 const nodemailer = require('nodemailer');
 const app = express();
 app.use(express.urlencoded({extended: false}));
-const uri = process.env.DB_HOST;
-const db = "mongodb://localhost:27017/userDB";
+//const uri = process.env.DB_HOST;
+// const db = "mongodb://localhost:27017/userDB";
 
 
 // "mongodb://localhost:27017/productDB");
@@ -382,6 +382,12 @@ else{
 
  res.render("winner",{records:data});
 })
-app.listen(process.env.port,()=>{
+
+let port = process.env.port;
+if(port==null || port==""){
+    port = 3000;
+}
+
+app.listen(port ,()=>{
     console.log("server is listening");
 });
