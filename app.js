@@ -383,10 +383,10 @@ else{
  res.render("winner",{records:data});
 })
 
-let port = process.env.port;
-if(port==null || port==""){
-    port = 3000;
-}
+let port = process.env.port||3000;
+// if(port==null || port==""){
+//     port = 3000;
+// }
 
 app.listen(port ,()=>{
     console.log("server is listening");
