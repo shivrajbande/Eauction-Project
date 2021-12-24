@@ -35,7 +35,7 @@ var transporter = nodemailer.createTransport({
 
 
 const store = new MongoDBSession({
-    uri:db,
+    uri:process.env.DB_HOST,
     collection:'users',
 })
 app.use(session({
