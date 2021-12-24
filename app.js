@@ -15,7 +15,7 @@ app.use(express.urlencoded({extended: false}));
 
 // "mongodb://localhost:27017/productDB");
 // "mongodb+srv://Shivraj_Bande:Shivraj7995@cluster0.1ikvl.mongodb.net/userDB?retryWrites=true&w=majority";
-mongoose.connect(process.env.DB_HOST,{
+mongoose.connect(process.env.mongodbURL,{
 useNewUrlParser:true,
 }).then(()=>{
     console.log("success")
@@ -35,7 +35,7 @@ var transporter = nodemailer.createTransport({
 
 
 const store = new MongoDBSession({
-    uri:process.env.DB_HOST,
+    uri:process.env.mongodbURL,
     collection:'users',
 })
 app.use(session({
