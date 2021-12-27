@@ -7,7 +7,7 @@ body{
     align-items: center;
     padding:0px;
     
-    
+    background-repeat: no-repeat;
     background-image: linear-gradient(skyblue,rgb(252, 207, 124));
       font-family: sans-serif;
       font-weight:bold;
