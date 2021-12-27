@@ -309,7 +309,8 @@ app.post("/buyer",async(req,res)=>{
 const filter ={"bidders.name" : na};
   const productcollection = await User.findOneAndUpdate(filter,{ $push :{"bidders.$.details":inti } },{new:true}
 );
-  
+
+
   res.redirect(`/exploreauction?name=${auctionid}`);
      
  })
@@ -320,7 +321,7 @@ app.get("/winner",isAuth,async(req,res)=>{
     var na = product;
 const userdata = await User.find({"bidders.name" : product});
 var id1 = userdata[0]._id;
-var data,mini=0,id3,i,j,k,l,id2,username;
+var data,mini=0,id3,i,j,k,id2,username;
 var size = userdata[0].bidders.length;
 for(i = 0; i < size ; i ++)
 {
@@ -339,11 +340,10 @@ for(i = 0; i < size ; i ++)
                     mini = userdata[0].bidders[i].details[j].amountbidded ;
                
                        k = j;
-                   
                 }
         }
         id3 = userdata[0].bidders[i].details[k]._id;
-        emailsend = userdata[0].bidders[i].details[k].email;
+       // emailsend = userdata[0].bidders[i].details[k].email;
         username = userdata[0].bidders[i].details[k].name;
         break;
     }
