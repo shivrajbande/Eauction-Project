@@ -355,30 +355,30 @@ data = {
     min:mini,
 }
 
-if(emailsend!=null){
-var mailOptions = {
-    from: fromsecond,
-    to: emailsend,
-    subject: 'From eauction',
-    text: 'Congratulations!! you are the winner of auction',
-  };
+// if(emailsend!=null){
+// var mailOptions = {
+//     from: fromsecond,
+//     to: emailsend,
+//     subject: 'From eauction',
+//     text: 'Congratulations!! you are the winner of auction',
+//   };
 
-  transporter.sendMail(mailOptions, function(error, info){
-    if (error) {
-      console.log(error);
-    } else {
-      console.log('Email sent: ' + info.response);
-    }
-  });
-const resu = await User.findByIdAndUpdate({_id:id1},
-    {$set :{'bidders.$[f].details.$[s].email':null}},
-    {arrayFilters : [{'f._id':id2},{'s._id':id3}]});
+//   transporter.sendMail(mailOptions, function(error, info){
+//     if (error) {
+//       console.log(error);
+//     } else {
+//       console.log('Email sent: ' + info.response);
+//     }
+//   });
+// const resu = await User.findByIdAndUpdate({_id:id1},
+//     {$set :{'bidders.$[f].details.$[s].email':null}},
+//     {arrayFilters : [{'f._id':id2},{'s._id':id3}]});
     
 
-}
-else{
-    console.log('email already sent!!!');
-}
+// }
+// else{
+//     console.log('email already sent!!!');
+// }
 
  res.render("winner",{records:data});
 })
