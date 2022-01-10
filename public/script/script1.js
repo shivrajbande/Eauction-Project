@@ -73,7 +73,7 @@ function fun1() {
                     cell2.innerHTML = `<a href = "#">${g.innerHTML}</a>`;
                     cell3.innerHTML = r.innerHTML;
                     cell4.innerHTML = s.innerHTML;
-                    cell5.innerHTML =`<a href="/winner?name=${b}&myVar1=${g.innerHTML}">Click</a>`;
+                    cell5.innerHTML =`<a href="/winner?myVar1=${g.innerHTML}">Click</a>`;
 
 
                 }
@@ -147,7 +147,7 @@ function fun2() {
                     cell3.innerHTML = r.innerHTML;
                     cell4.innerHTML = "";
                     cell5.innerHTML = s.innerHTML;
-                    cell6.innerHTML = `<td><a href="/buyer?name=${b}&myVar=${g.innerHTML}">Click</a><td>`;
+                    cell6.innerHTML = `<td><a href="/buyer?myVar=${g.innerHTML}">Click</a><td>`;
                 }
                 }
                 else if (cols == 3) {

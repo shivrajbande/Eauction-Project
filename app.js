@@ -9,12 +9,18 @@ const MongoDBSession = require('connect-mongodb-session')(session);
 const nodemailer = require('nodemailer');
 const app = express();
 app.use(express.urlencoded({extended: false}));
-//const uri = process.env.DB_HOST;
-// const db = "mongodb://localhost:27017/userDB";
 
+// const redis = require('redis');
+// const client = redis.createClient({
+//     host: '127.0.0.1',
+//     port:6379,
+//     password: process.env.password
+// });
 
-// "mongodb://localhost:27017/productDB");
-// "mongodb+srv://Shivraj_Bande:Shivraj7995@cluster0.1ikvl.mongodb.net/userDB?retryWrites=true&w=majority";
+// client.on('error', err => {
+//     console.log('Error ' + err);
+// });
+
 mongoose.connect(process.env.mongodbURL,{
 useNewUrlParser:true,
 }).then(()=>{
@@ -147,7 +153,8 @@ app.post("/",async(req,res)=>{
            
           req.session.isAuth=true;
          // console.log(parentid);
-          res.redirect(`/home?name=${parentid}`);
+         req.session.name = parentid;
+          res.redirect("/home");
         }
         else{
             req.session.isAuth=false;
@@ -172,9 +179,8 @@ app.post("/signin" ,async(req,res)=>{
         if(resu)
         { 
             req.session.isAuth = true;
-            parentid = (detail[0]._id).toString();
-            var id = parentid;
-             res.redirect(`/home?name=${parentid}`);
+            req.session.name  = detail[0]._id.toString();
+             res.redirect("/home");
           
         }
         else
@@ -194,8 +200,8 @@ app.post("/signin" ,async(req,res)=>{
 
 app.get("/home" , isAuth,async(req,res)=>{
    // console.log(req.query.name);
-    var id = req.query.name;
-   res.render('home',{records:id});
+   res.sendFile(__dirname+"/public/home.html");
+  // res.render('home',{records:id});
    
 })
 
@@ -204,9 +210,9 @@ app.get("/howItWorks",isAuth,(req,res)=>{
 })
 var id;
 app.get("/wanttoauction",isAuth,(req,res)=>{
-     id = (req.query.name);
+     id = req.session.name;
 
-res.render("wantoauction",{records:id});
+res.sendFile(__dirname+"/public/wanttoauction.html");
   
 })
 
@@ -233,13 +239,16 @@ app.post("/wanttoauction",upload, async(req,res,next)=>{
        
    users.save();
        
-      res.redirect(`/exploreauction?name=${id}`);
+      res.redirect("/exploreauction");
 
 })
 
 app.get('/exploreauction',isAuth,(req,res) =>{
-    const id = (req.query.name);
+    // console.log(req.session.name);
+    // const id = (req.session.name);
+    
     User.find({},function(err,use){
+        console.log(use);
         res.render("index",{ records:{use,id}})
      })
 });
@@ -250,7 +259,7 @@ var na,auctionid;
 app.get("/buyer",isAuth,async(req,res)=>{
 
 na = (req.query.myVar);
-auctionid = req.query.name;
+auctionid = req.session.name;
 
 const userdata = await User.find({"auction.name" : na});
 
@@ -320,8 +329,11 @@ app.get("/winner",isAuth,async(req,res)=>{
     product = (req.query.myVar1);
     var na = product;
 const userdata = await User.find({"bidders.name" : product});
+
+
 var id1 = userdata[0]._id;
-var data,mini=0,id3,i,j,k,id2,username;
+
+var data, mini=0, id3, i, j, k, id2, username, l;
 var size = userdata[0].bidders.length;
 for(i = 0; i < size ; i ++)
 {
@@ -330,7 +342,8 @@ for(i = 0; i < size ; i ++)
     {
         id2 = userdata[0].bidders[i]._id;
       
-       
+        if(userdata[0].bidders[i].details.length!=0)
+        {
         for(j = 0 ; j < userdata[0].bidders[i].details.length;j++)
         {
           
@@ -340,16 +353,23 @@ for(i = 0; i < size ; i ++)
                     mini = userdata[0].bidders[i].details[j].amountbidded ;
                
                        k = j;
+                       
                 }
         }
+       
         id3 = userdata[0].bidders[i].details[k]._id;
        // emailsend = userdata[0].bidders[i].details[k].email;
         username = userdata[0].bidders[i].details[k].name;
-        break;
+    }
+    break;
     }
    // console.log(username);
 }
-var namei,min;
+
+if(username==null)
+{
+    username = "No person auctioned for this product!";
+}
 data = {
      namei:username,
     min:mini,
@@ -380,7 +400,9 @@ data = {
 //     console.log('email already sent!!!');
 // }
 
+
  res.render("winner",{records:data});
+
 })
 
 let port = process.env.PORT||3000;
