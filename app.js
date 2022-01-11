@@ -9,6 +9,7 @@ const MongoDBSession = require('connect-mongodb-session')(session);
 const nodemailer = require('nodemailer');
 const app = express();
 app.use(express.urlencoded({extended: false}));
+//const db = "mongodb://localhost:27017/userDB";
 
 // const redis = require('redis');
 // const client = redis.createClient({
@@ -83,11 +84,10 @@ const UserSchema = mongoose.Schema({
             start:String,
             end:String,
             img:String,
+            descri:String,
     }],
     bidders : [{
            name:String,
-           amount:Number,//instead keep amount number
-           img:String,
              details : [{ name:String, amountbidded:Number,email:String,}] 
      }]
 });
@@ -122,12 +122,11 @@ app.get("/",(req,res)=>{
 
      res.sendFile(__dirname+"/public/index.html");
 })
-app.post("/logout",(req,res)=>{
+app.get("/logout",(req,res)=>{
     req.session.destroy((err)=>{
         if(err) throw err;
         res.redirect("/");
     })
-
 })
 var parentid;
 app.post("/",async(req,res)=>{
@@ -224,11 +223,10 @@ app.post("/wanttoauction",upload, async(req,res,next)=>{
         start:req.body.start,
         end:req.body.end,
         img : req.file.filename,
+        descri:req.body.desp
     }
     let buy = {
        name:req.body.username,
-       img : req.file.filename,
-       amount:req.body.base_price,
     }
     
       const users = await User.findById(id);
@@ -248,7 +246,7 @@ app.get('/exploreauction',isAuth,(req,res) =>{
     // const id = (req.session.name);
     
     User.find({},function(err,use){
-        console.log(use);
+       // console.log(use);
         res.render("index",{ records:{use,id}})
      })
 });
@@ -272,6 +270,7 @@ for(var j = 0 ; j < userdata[0].auction.length;j++)
     {
         img = userdata[0].auction[j].img;
         amounti = userdata[0].auction[j].amount;
+        despi = userdata[0].auction[j].descri;
 
     }
 }
@@ -304,7 +303,8 @@ data ={
     namei:na,
     amount:amounti,
     min:mini,
-    img:img
+    img:img,
+    descri:despi,
 }
 res.render("buyer",{records:data});
 })
@@ -333,7 +333,7 @@ const userdata = await User.find({"bidders.name" : product});
 
 var id1 = userdata[0]._id;
 
-var data, mini=0, id3, i, j, k, id2, username, l;
+var data, mini, id3, i, k, id2, username;
 var size = userdata[0].bidders.length;
 for(i = 0; i < size ; i ++)
 {
@@ -344,13 +344,13 @@ for(i = 0; i < size ; i ++)
       
         if(userdata[0].bidders[i].details.length!=0)
         {
-        for(j = 0 ; j < userdata[0].bidders[i].details.length;j++)
+        for(var j = 0 ; j < userdata[0].bidders[i].details.length;j++)
         {
           
                 if(userdata[0].bidders[i].details[j].amountbidded > mini)
                 {
                    
-                    mini = userdata[0].bidders[i].details[j].amountbidded ;
+                   
                
                        k = j;
                        
@@ -359,6 +359,7 @@ for(i = 0; i < size ; i ++)
        
         id3 = userdata[0].bidders[i].details[k]._id;
        // emailsend = userdata[0].bidders[i].details[k].email;
+       mini = userdata[0].bidders[i].details[k].amountbidded ;
         username = userdata[0].bidders[i].details[k].name;
     }
     break;
