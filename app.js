@@ -9,12 +9,12 @@ const MongoDBSession = require('connect-mongodb-session')(session);
 const nodemailer = require('nodemailer');
 const app = express();
 app.use(express.urlencoded({extended: false}));
-//const uri = process.env.DB_HOST;
-// const db = "mongodb://localhost:27017/userDB";
 
 
-// "mongodb://localhost:27017/productDB");
-// "mongodb+srv://Shivraj_Bande:Shivraj7995@cluster0.1ikvl.mongodb.net/userDB?retryWrites=true&w=majority";
+
+
+//"mongodb://localhost:27017/productDB");
+//"mongodb+srv://Shivraj_Bande:Shivraj7995@cluster0.1ikvl.mongodb.net/userDB?retryWrites=true&w=majority";
 mongoose.connect(process.env.mongodbURL,{
 useNewUrlParser:true,
 }).then(()=>{
@@ -71,17 +71,16 @@ const UserSchema = mongoose.Schema({
    // phonenumber:Number,
    session:String,
     auction: [{
-        //id1:String,
+
            name:String,
             amount: Number,
             start:String,
             end:String,
             img:String,
+            descri:String,
     }],
     bidders : [{
            name:String,
-           amount:Number,//instead keep amount number
-           img:String,
              details : [{ name:String, amountbidded:Number,email:String,}] 
      }]
 });
@@ -116,24 +115,23 @@ app.get("/",(req,res)=>{
 
      res.sendFile(__dirname+"/public/index.html");
 })
-app.post("/logout",(req,res)=>{
+app.get("/logout",(req,res)=>{
     req.session.destroy((err)=>{
         if(err) throw err;
         res.redirect("/");
     })
-
 })
+
 var parentid;
 app.post("/",async(req,res)=>{
     
          const userpassword = req.body.password;
          const confirm_user_password = req.body.cpassword;
-        //   console.log(userpassword);
-        //   console.log(confirm_user_password);
+       
          if(userpassword===confirm_user_password)
          {
          const securePassword = await bcrypt.hash(userpassword,10);
-        // console.log(securePassword);
+       
         
         const users = new User({
             name:req.body.name,
@@ -147,7 +145,9 @@ app.post("/",async(req,res)=>{
            
           req.session.isAuth=true;
          // console.log(parentid);
-          res.redirect(`/home?name=${parentid}`);
+         req.session.name = parentid;
+        // console.log(req.session);
+          res.redirect("/home");
         }
         else{
             req.session.isAuth=false;
@@ -163,6 +163,7 @@ app.get("/signin",(req,res)=>{
 
 app.post("/signin" ,async(req,res)=>{
     const detail = await User.find({email:req.body.email,name:req.body.name});
+   // console.log(detail);
     const userpassword = req.body.password;
     if(detail.length>0)
     {
@@ -172,9 +173,11 @@ app.post("/signin" ,async(req,res)=>{
         if(resu)
         { 
             req.session.isAuth = true;
-            parentid = (detail[0]._id).toString();
-            var id = parentid;
-             res.redirect(`/home?name=${parentid}`);
+           
+            req.session.name  = detail[0]._id.toString();
+            
+
+             res.redirect("/home");
           
         }
         else
@@ -194,8 +197,9 @@ app.post("/signin" ,async(req,res)=>{
 
 app.get("/home" , isAuth,async(req,res)=>{
    // console.log(req.query.name);
-    var id = req.query.name;
-   res.render('home',{records:id});
+//     var id = req.query.name;
+//    res.render('home',{records:id});
+res.sendFile(__dirname+"/public/home.html");
    
 })
 
@@ -204,25 +208,28 @@ app.get("/howItWorks",isAuth,(req,res)=>{
 })
 var id;
 app.get("/wanttoauction",isAuth,(req,res)=>{
-     id = (req.query.name);
-
-res.render("wantoauction",{records:id});
+    id = (req.session.name);
+//      console.log(req.session.name);
+// res.render("wantoauction",{records:id});
+res.sendFile(__dirname+"/public/wanttoauction.html");
   
 })
 
 app.post("/wanttoauction",upload, async(req,res,next)=>{
-    
+   
     let inser = {
         name:req.body.username,
         amount: req.body.base_price,
         start:req.body.start,
         end:req.body.end,
         img : req.file.filename,
+        descri:req.body.desp
     }
     let buy = {
        name:req.body.username,
-       img : req.file.filename,
-       amount:req.body.base_price,
+    //    img : req.file.filename,
+    //    amount:req.body.base_price,
+        
     }
     
       const users = await User.findById(id);
@@ -233,12 +240,13 @@ app.post("/wanttoauction",upload, async(req,res,next)=>{
        
    users.save();
        
-      res.redirect(`/exploreauction?name=${id}`);
+      res.redirect("/exploreauction");
 
 })
 
 app.get('/exploreauction',isAuth,(req,res) =>{
-    const id = (req.query.name);
+    const id = (req.session.name);
+    
     User.find({},function(err,use){
         res.render("index",{ records:{use,id}})
      })
@@ -246,23 +254,27 @@ app.get('/exploreauction',isAuth,(req,res) =>{
 
 
 //buyer
-var na,auctionid;
+var na;
 app.get("/buyer",isAuth,async(req,res)=>{
 
-na = (req.query.myVar);
-auctionid = req.query.name;
+ na = (req.query.myVar);
+//console.log(req.session.name);
+//console.log(na);
+auctionid = req.session.name;
 
 const userdata = await User.find({"auction.name" : na});
 
+// console.log(userdata[0]);
+// console.log(na);
+var img,amounti,despi;
 
-
-var img,amounti;
 for(var j = 0 ; j < userdata[0].auction.length;j++)
 {
     if(userdata[0].auction[j].name==na)
     {
         img = userdata[0].auction[j].img;
         amounti = userdata[0].auction[j].amount;
+        despi = userdata[0].auction[j].descri;
 
     }
 }
@@ -275,6 +287,7 @@ for(var i = 0; i < size ; i++)
     if((userdata[0].bidders[i].name)===na)
     {
        
+        
         for(var j = 0 ; j < userdata[0].bidders[i].details.length;j++)
         {
 
@@ -291,74 +304,94 @@ for(var i = 0; i < size ; i++)
    
 }
 
+//console.log(na);
+
+//console.log(despi);
 data ={
     namei:na,
     amount:amounti,
     min:mini,
-    img:img
+    img:img,
+    descri:despi,
 }
 res.render("buyer",{records:data});
 })
 app.post("/buyer",async(req,res)=>{
+
   var inti = {
         name:req.body.username,
         amountbidded:req.body.biddprice,
         email:req.body.email
   }
-
+//console.log(na);
 const filter ={"bidders.name" : na};
   const productcollection = await User.findOneAndUpdate(filter,{ $push :{"bidders.$.details":inti } },{new:true}
 );
   
-  res.redirect(`/exploreauction?name=${auctionid}`);
+  res.redirect("/exploreauction");
      
  })
  //winner
 
 app.get("/winner",isAuth,async(req,res)=>{
+
+    //console.log(req.session.name);
+
     product = (req.query.myVar1);
     var na = product;
+
 const userdata = await User.find({"bidders.name" : product});
+
 var id1 = userdata[0]._id;
-var data,mini=0,id3,i,j,k,l,id2,username;
+//console.log(id1);
+var data,mini,id3,k,id2,username,i;
+
+
 var size = userdata[0].bidders.length;
-for(i = 0; i < size ; i ++)
+//yconsole.log(size);
+
+for( i = 0; i < size ; i ++)
 {
   
     if((userdata[0].bidders[i].name)=== na)
     {
-        id2 = userdata[0].bidders[i]._id;
       
+        id2 = userdata[0].bidders[i]._id;
        
-        for(j = 0 ; j < userdata[0].bidders[i].details.length;j++)
+       if(userdata[0].bidders[i].details.length!=0)
+       {
+        for(var j = 0 ; j < userdata[0].bidders[i].details.length;j++)
         {
           
                 if(userdata[0].bidders[i].details[j].amountbidded > mini)
+
                 {
-                   
-                    mini = userdata[0].bidders[i].details[j].amountbidded ;
-               
                        k = j;
-                   
                 }
         }
+        mini = userdata[0].bidders[i].details[j].amountbidded ;
         id3 = userdata[0].bidders[i].details[k]._id;
         emailsend = userdata[0].bidders[i].details[k].email;
         username = userdata[0].bidders[i].details[k].name;
+       }
         break;
     }
-   // console.log(username);
+   
 }
-var namei,min;
+
+
+
 data = {
-     namei:username,
+    namei:username,
     min:mini,
 }
 
+if(userdata[0].bidders[i].details.length!=0)
+{
 if(emailsend!=null){
 var mailOptions = {
-    from: fromsecond,
-    to: emailsend,
+    from: process.env.fromsecond,
+    to: process.env.emailsend,
     subject: 'From eauction',
     text: 'Congratulations!! you are the winner of auction',
   };
@@ -379,15 +412,10 @@ const resu = await User.findByIdAndUpdate({_id:id1},
 else{
     console.log('email already sent!!!');
 }
+}
 
  res.render("winner",{records:data});
 })
-
-let port = process.env.PORT||3000;
-// if(port==null || port==""){
-//     port = 3000;
-// }
-
-app.listen(port ,()=>{
+app.listen(3000,()=>{
     console.log("server is listening");
 });
