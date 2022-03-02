@@ -153,6 +153,7 @@ header .search .fa-search{
 }
 .left{
   margin-top: 30px;
+<<<<<<< HEAD
    width:70%;
    height: auto;
 }
@@ -178,6 +179,32 @@ header .search .fa-search{
     display: block;
     /* float: 50%; */
     margin-left: 70%;
+=======
+  width:70%;
+  margin-left: 10px;
+  height: auto;
+}
+
+.left input{
+  width:70%;
+  height:20px;
+ 
+}
+.right {
+  margin-top: 30px;
+  width:30%;
+}
+.rightright input{
+  width:80px;
+  height:40px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top:50px;
+  background-image: linear-gradient(rgb(0, 204, 255),rgb(58, 58, 241));
+  display: block;
+  /* float: 50%; */
+  margin-left: 70%;
+>>>>>>> eef186c4729aa6e1b732d87843ba184adbc8d14e
 }
 .right p{
     font-weight: bold;
